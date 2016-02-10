@@ -7,6 +7,8 @@
         mc:Ignorable="d"
         Title="HomeBanking" Height="350" Width="525">
     <Grid>
-        
+        <Button x:Name="btnTest" Content="Test" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="75" Click="btnTest_Click"/>
+        <TextBox x:Name="tbOutput" HorizontalAlignment="Left" Height="56" TextWrapping="Wrap" VerticalAlignment="Top" Width="517" Margin="0,263,0,0" VerticalScrollBarVisibility="Visible"/>
+
     </Grid>
 </Window>

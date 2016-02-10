@@ -23,6 +23,7 @@ namespace HomeBanking
             }
             catch (Exception e)
             {
+                // TODO: DB automatisch aanmaken indien deze niet bestaat (met melding)
                 MessageBox.Show("Database kan niet worden geopend: " + e.Message.ToString());
                 Application.Current.Shutdown();
             }
