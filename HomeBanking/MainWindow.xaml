@@ -7,8 +7,32 @@
         mc:Ignorable="d"
         Title="HomeBanking" Height="350" Width="525">
     <Grid>
-        <Button x:Name="btnTest" Content="Test" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="75" Click="btnTest_Click"/>
+        <DockPanel>
+            <Menu DockPanel.Dock="Top">
+                <MenuItem Header="_File">
+                    <MenuItem x:Name="miImport" Header="_Import..." Click="miImport_Click"/>
+                </MenuItem>
+            </Menu>
+        </DockPanel>
         <TextBox x:Name="tbOutput" HorizontalAlignment="Left" Height="56" TextWrapping="Wrap" VerticalAlignment="Top" Width="517" Margin="0,263,0,0" VerticalScrollBarVisibility="Visible"/>
+        <TabControl x:Name="tabControl" Margin="10,46,10,0" VerticalAlignment="Top" Height="212">
+            <TabItem x:Name="tsInlezen" Header="Inlezen" Margin="0,0,-4,-2">
+                <Grid Background="#FFE5E5E5">
+                    <ComboBox x:Name="comboBox" HorizontalAlignment="Left" Margin="39,30,0,0" VerticalAlignment="Top" Width="120">
+                        <ComboBoxItem Content="Test"/>
+                    </ComboBox>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Jaaroverzicht" Loaded="TabItem_Loaded">
+                <Grid Background="#FFE5E5E5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="97*"/>
+                        <ColumnDefinition Width="394*"/>
+                    </Grid.ColumnDefinitions>
+                    <DataGrid x:Name="dgJaaroverzicht" Margin="10,0,10,10" Grid.ColumnSpan="2" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
+                </Grid>
+            </TabItem>
+        </TabControl>
 
     </Grid>
 </Window>

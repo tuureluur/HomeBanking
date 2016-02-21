@@ -13,10 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Data.SQLite;
-using System.IO;
 using System.Diagnostics;
-using CsvHelper;
-using HomeBanking.classes;
 
 namespace HomeBanking
 {
@@ -25,81 +22,30 @@ namespace HomeBanking
     /// </summary>
     public partial class MainWindow : Window
     {
-        private SQLiteConnection DBconnection = global.DB.connection;
 
         public MainWindow()
         {
             InitializeComponent();
         }
 
-        private void btnTest_Click(object sender, RoutedEventArgs ea)
+
+        private void TabItem_Loaded(object sender, RoutedEventArgs e)
         {
+            string sql = "select strftime('%m', tr_date) as 'Maand', sum (tr_amount) as 'Totaal' from transactions " +
+                         "where tr_date >= '2016-01-01' and internal_payment = 'false' " + 
+                         "group by strftime('%m', tr_date) order by strftime('%m', tr_date)";
 
-            tbOutput.Clear();
-            tbOutput.AppendText("DB State: " + DBconnection.State.ToString() + '\n');
+            System.Data.DataSet dataSet = new System.Data.DataSet();
+            SQLiteDataAdapter dataAdapter = new SQLiteDataAdapter(sql, global.DB.connection);
+            dataAdapter.Fill(dataSet);
 
-            var sr = new StreamReader(@"d:\Development\VS\HomeBanking\CSV\2016.csv");
-            var csv = new CsvReader(sr);
-            csv.Configuration.RegisterClassMap<ImporterINGB.Mapper>();
-            IEnumerable<ImporterINGB.csvRecord> records = csv.GetRecords<ImporterINGB.csvRecord>();
-
-
-            string sqlInsert = "INSERT INTO TRANSACTIONS (TR_DATE, TR_NAME, TR_AMOUNT, ACCOUNT, ACCOUNT_CONTRA, TR_CODE, ADD_SUB, TR_TYPE, TR_DESCRIPTION) VALUES (?,?,?,?,?,?,?,?,?)";
-            using (var cmd = new SQLiteCommand(sqlInsert, DBconnection))
-            {
-                cmd.CommandText = sqlInsert;
-                using (var transaction = DBconnection.BeginTransaction())
-                {
-                    cmd.Parameters.Add("TR_DATE", System.Data.DbType.Date);
-                    cmd.Parameters.Add("TR_NAME", System.Data.DbType.String);
-                    cmd.Parameters.Add("TR_AMOUNT", System.Data.DbType.Double);
-                    cmd.Parameters.Add("ACCOUNT", System.Data.DbType.String);
-                    cmd.Parameters.Add("ACCOUNT_CONTRA", System.Data.DbType.String);
-                    cmd.Parameters.Add("TR_CODE", System.Data.DbType.String);
-                    cmd.Parameters.Add("ADD_SUB", System.Data.DbType.String);
-                    cmd.Parameters.Add("TR_TYPE", System.Data.DbType.String);
-                    cmd.Parameters.Add("TR_DESCRIPTION", System.Data.DbType.String);
-
-                    foreach (ImporterINGB.csvRecord record in records)
-                    {
-                        try
-                        { 
-                            cmd.Parameters["TR_DATE"].Value = DateTime.ParseExact(record.Datum, "yyyyMMdd", System.Globalization.CultureInfo.InvariantCulture) ;
-                            cmd.Parameters["TR_NAME"].Value = record.Omschrijving;
-                            cmd.Parameters["TR_AMOUNT"].Value = record.Bedrag;
-                            cmd.Parameters["ACCOUNT"].Value = record.Rekening;
-                            cmd.Parameters["ACCOUNT_CONTRA"].Value = record.Tegenrekenening;
-                            cmd.Parameters["TR_CODE"].Value = record.Code;
-                            cmd.Parameters["ADD_SUB"].Value = record.AfBij;
-                            cmd.Parameters["TR_TYPE"].Value = record.MutatieSoort;
-                            cmd.Parameters["TR_DESCRIPTION"].Value = record.Mededelingen;
-
-                            cmd.ExecuteNonQuery();
-                        }
-                        catch (Exception e) {
-                            // ignore
-                        } 
-
-                    }
-
-                    transaction.Commit();
-
-                }
-            }
-
-            /*
-            string sql = "select count(*) as cnt from MUTATIES";
-
-            SQLiteCommand command = new SQLiteCommand(sql, DBconnection);
-            SQLiteDataReader reader = command.ExecuteReader();
-            while (reader.Read())
-            {
-                tbOutput.AppendText("Aantal mutaties: " + reader["cnt"].ToString() + '\n');
-            }
-            
-        */
-
+            dgJaaroverzicht.ItemsSource = dataSet.Tables[0].DefaultView;
         }
 
+        private void miImport_Click(object sender, RoutedEventArgs e)
+        {
+            ImportData frmImportData = new ImportData();
+            frmImportData.ShowDialog();
+        }
     }
 }
